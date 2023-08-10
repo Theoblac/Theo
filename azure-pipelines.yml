@@ -1,0 +1,72 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build and Test
+        run: npm run build && npm test
+
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to Staging
+        run: |
+          # Replace this with your actual deployment command to the staging environment.
+          echo "Deploying to staging..."
+# ... (previous YAML configuration)
+
+  notify:
+    name: Notify Team on Failure
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+
+    if: ${{ always() }} # This ensures the notification job runs even if the previous stages fail.
+
+    steps:
+      - name: Notify on Failure
+        if: ${{ failure() }}
+        run: |
+          # Replace this with your actual notification mechanism (e.g., Slack, email, etc.).
+          echo "Build or deployment failed. Notify the team!"
